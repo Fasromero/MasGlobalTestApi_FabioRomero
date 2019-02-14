@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>MAS Global Test Employee App</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div>
+        <h3>All Employees</h3>
+        <ul style="list-style: none;" id="employees">
+            <li>
+                Loading ... 'With love and patience, nothing is impossible.'
+            </li>
+        </ul>
+        <table id="allEmployees">
+        </table>
+    </div>
+    <div>
+        <h4>Search by Employee ID</h4>
+        <input type="text" id="Id" size="8" />
+        <input type="button" value="Get Employees" onclick="findEmployee();" />
+        <ul style="list-style: none;" id="employee"></ul>
+        <table id="selectedEmployees">
+        </table>
+    </div>
+
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
+
+    <script>
+    var uri = 'api/employees';
+
+    $(document).ready(function () {
+        $('#selectedEmployees').hide();
+        $.getJSON(uri)
+            .done(function (data) {
+                populateTable(data, 'allEmployees');
+                $('li').hide();
+                console.log('All employees finished loading!');
+            })
+            .fail(function (jqxhr, textStatus, error) {
+                var err = textStatus + ", " + error;
+                console.log('Request Failed: ' + err);
+            });
+        });
+
+    function findEmployee() {
+        var id = $('#Id').val();
+        var uriId = uri;
+        $('#selectedEmployees').empty();
+        $('#selectedEmployees').show();
+        $('#employee').empty();
+        if (id !== "") {
+            uriId = uri + '/' + id;
+        }
+        $.getJSON(uriId)
+            .done(function (data) {
+                populateTable(data, 'selectedEmployees');
+                console.log('Remaining employees finished loading!');
+            })
+            .fail(function (jqxhr, textStatus, error) {
+                var err = textStatus + ", " + error;
+                console.log('Request Failed: ' + err);
+                $('#selectedEmployees').hide();
+                $('#employee').text('Sorry ;(  there was an error: ' + err);
+            });
+    }
+
+    function populateTable(response, tableName) {
+        var trHTML = '';
+        trHTML += '<tr><td>Id</td><td>Name</td><td>ContractTypeName</td><td>RoleName';
+        trHTML += '</td><td>HourlySalary</td><td>MonthlySalary</td><td>AnnualSalary</td></tr>';
+        if (response.length && response.length > 0) {
+            $.each(response, function (i, item) {
+                trHTML += '<tr><td>' + item.Id + '</td><td>' + item.Name + '</td><td>' + item.ContractTypeName + '</td><td>' + item.RoleName;
+                trHTML += '</td><td>' + item.HourlySalary + '</td><td>' + item.MonthlySalary + '</td><td>' + item.AnnualSalary + '</td></tr>';
+            });
+        } else {
+            trHTML += '<tr><td>' + response.Id + '</td><td>' + response.Name + '</td><td>' + response.ContractTypeName + '</td><td>' + response.RoleName;
+            trHTML += '</td><td>' + response.HourlySalary + '</td><td>' + response.MonthlySalary + '</td><td>' + response.AnnualSalary + '</td></tr>';
+        }
+        $('#' + tableName).append(trHTML);
+    }
+
+    </script>
+</body>
+
+</html>
